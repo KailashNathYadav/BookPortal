@@ -7,7 +7,7 @@ CRUD operation:
 
 Create:
 Method: Post
-URI: https://localhost:7070/api/book/
+URI: https://localhost:7070/api/books/
 
 Input 1: 
 
@@ -44,14 +44,14 @@ Output 3: 200 Ok
 
 Read:
 Method: Get
-URI: https://localhost:7070/api/book/
+URI: https://localhost:7070/api/books/
 Output: Arrays of 3 books
 
-URI: https://localhost:7070/api/book/{id}
+URI: https://localhost:7070/api/books/{id}
 Output: Detail of specified book
 
 Update: Put
-URI: https://localhost:7070/api/book/{id}
+URI: https://localhost:7070/api/books/{id}
 
 Input: body>JSON
 
@@ -66,5 +66,5 @@ Output: 200 Ok
 
 Delete:
 Method: Delete
-URI: https://localhost:7070/api/book/{id}
+URI: https://localhost:7070/api/books/{id}
 Output: 200 Ok if found else 404 NotFound
