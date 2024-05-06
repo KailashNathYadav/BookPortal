@@ -1,0 +1,27 @@
+﻿@model BookPortal.Models.ViewModels.AddBookDTO
+@{
+
+}
+
+<div>
+    <form method="post">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" asp-for="Title" required>
+        </div>
+        <div class="mb-3">
+            <label for="author" class="form-label">Author</label>
+            <input type="text" class="form-control" id="author" asp-for="Author" required>
+        </div>
+        <div class="mb-3">
+            <label for="isbn" class="form-label">ISBN</label>
+            <input type="text" class="form-control" id="isbn" asp-for="ISBN" required>
+        </div>
+        <div class="mb-3">
+            <label for="publishedDate" class="form-label">Published Date</label>
+            <input type="date" class="form-control" id="publishedDate" asp-for="PublishedDate" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+</div>
