@@ -1,0 +1,20 @@
+.App {
+  text-align: center;
+}
+
+.header{
+  background: #000;
+  padding: 2px 0;
+}
+
+.header *{
+  margin: 4px;
+}
+
+.action{
+  margin:1px;
+}
+
+
+
+
