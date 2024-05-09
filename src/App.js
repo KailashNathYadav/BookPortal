@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Table } from "semantic-ui-react";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
+import { Modal } from "react-bootstrap";
 import axios from "axios";
 import "./App.css";
 
-export const baseURL = `http://localhost:5000/api/books`;
+const baseURL = `http://localhost:5000/api/books`;
 
 function App() {
-  const [search,setSearch] = useState([]);
   const [books, setBooks] = useState([]);
+  const [search, setSearch] = useState([]);
   const [show, setShow] = useState(false);
 
   const [title, setTitle] = useState("");
@@ -17,7 +15,7 @@ function App() {
   const [isbn, setIsbn] = useState("");
   const [publishedDate, setPublishedDate] = useState("");
 
-  const [editId,setEditId] = useState('');
+  const [editId, setEditId] = useState("");
   const [editTitle, setEditTitle] = useState("");
   const [editAuthor, setEditAuthor] = useState("");
   const [editIsbn, setEditIsbn] = useState("");
@@ -27,9 +25,12 @@ function App() {
     getData();
   }, []);
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const handleShow = (id) => {
+    setShow(true);
+    handleEdit(id);
+  };
 
+  const handleClose = () => setShow(false);
 
   const getData = () => {
     axios
@@ -62,11 +63,20 @@ function App() {
 
   const clearCreate = () => {
     console.log("reset all the create field");
+    setTitle("");
+    setAuthor("");
+    setIsbn("");
+    setPublishedDate("");
   };
 
   const clearEdit = () => {
-    console.log('reset all edit field');
-  }
+    console.log("reset all edit field");
+    setEditId("");
+    setEditTitle("");
+    setEditAuthor("");
+    setEditIsbn("");
+    setEditPublishedDate("");
+  };
 
   const handleDelete = (id) => {
     axios
@@ -77,160 +87,159 @@ function App() {
       .catch((error) => {
         alert(error);
       });
-    };
-    
-    const handleUpdate = (id) => {
-      handleShow();
-      handleEdit(id);
-    }
+  };
 
-    const handleEdit = (id) => {
-      // alert(id);
-      const data = {
-        id: editId,
-        title: editTitle,
-        author: editAuthor,
-        isbn: editIsbn,
-        publishedDate: editPublishedDate,
-      };
-      axios.put(`${baseURL}/${id}`,data)
-      .then((result)=>{
+  const handleEdit = (id) => {
+    const data = {
+      id: editId,
+      title: editTitle,
+      author: editAuthor,
+      isbn: editIsbn,
+      publishedDate: editPublishedDate,
+    };
+
+    axios
+      .put(`${baseURL}/${id}`, data)
+      .then((result) => {
         getData();
         clearEdit();
         handleClose();
-    }).catch((error)=>{
-      alert('It is not update: Error occured!!')
-    })
-
+      })
+      .catch((error) => {
+        console.log("Error occur during editing!!!!!!!!!!!");
+      });
   };
 
   const getDataByTitleOrAuthor = (search) => {
     // handle second time search
-    setBooks(books.filter((book) => book.title.includes(search) || book.author.includes(search)));
-  }
+    setBooks(
+      books.filter(
+        (book) => book.title.includes(search) || book.author.includes(search)
+      )
+    );
+    setSearch("");
+  };
 
   return (
-    <div className="App">
+    <div className="web-app">
       {/* Header of the Book Management Application */}
       <div className="header">
         <button onClick={() => getData()}>Book Portal</button>
-        <input type="text" 
-        placeholder="search books by title or author"
-        style={{width:"15%"}}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        <input
+          type="text"
+          placeholder="search books by title or author"
+          style={{ width: "15%" }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
-        <button type="submit" onClick={()=>getDataByTitleOrAuthor(search)} >🔍</button>
+        <button type="submit" onClick={() => getDataByTitleOrAuthor(search)}>
+          🔍
+        </button>
       </div>
 
       {/* List of Available details of book in database */}
-      <Table singleLine>
-        <Table.Header>
-          <Table.Row className="row">
-            <Table.HeaderCell>Title</Table.HeaderCell>
-            <Table.HeaderCell>Author</Table.HeaderCell>
-            <Table.HeaderCell>ISBN</Table.HeaderCell>
-            <Table.HeaderCell>Published Date</Table.HeaderCell>
-            <Table.HeaderCell>Actions</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-
-        <Table.Body>
-          <Table.Row className="row">
-            <Table.Cell>
-              <input
-                type="text"
-                placeholder="enter title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </Table.Cell>
-            <Table.Cell>
-              <input
-                type="text"
-                placeholder="enter author"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-              />
-            </Table.Cell>
-            <Table.Cell>
-              <input
-                type="text"
-                placeholder="enter isbn"
-                value={isbn}
-                onChange={(e) => setIsbn(e.target.value)}
-              />
-            </Table.Cell>
-            <Table.Cell>
-              <input
-                type="text"
-                placeholder="enter published date"
-                value={publishedDate}
-                onChange={(e) => setPublishedDate(e.target.value)}
-              />
-            </Table.Cell>
-            <Table.Cell>
-              <button onClick={() => handleCreate()}>Add new book</button>
-            </Table.Cell>
-          </Table.Row>
-          {books && books.length > 0
-            ? books.map((book) => (
-                <Table.Row className="row" key={book.id}>
-                  <Table.Cell>{book.title}</Table.Cell>
-                  <Table.Cell>{book.author}</Table.Cell>
-                  <Table.Cell>{book.isbn}</Table.Cell>
-                  <Table.Cell>{book.publishedDate}</Table.Cell>
-                  <Table.Cell className="action">
-                    <button onClick={() => handleDelete(book.id)}>
+      <div className="container">
+        <table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Book Title</th>
+              <th>Book Author</th>
+              <th>Book ISBN</th>
+              <th>Book Published Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <input
+                  type="text"
+                  placeholder="enter title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  placeholder="enter author"
+                  value={author}
+                  onChange={(e) => setAuthor(e.target.value)}
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  placeholder="enter isbn"
+                  value={isbn}
+                  onChange={(e) => setIsbn(e.target.value)}
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  placeholder="enter published date"
+                  value={publishedDate}
+                  onChange={(e) => setPublishedDate(e.target.value)}
+                />
+              </td>
+              <td>
+                <button onClick={handleCreate}>Add new book</button>
+              </td>
+            </tr>
+            {books && books.length > 0 ? (
+              books.map((book) => (
+                <tr key={book.id}>
+                  <td>{book.title}</td>
+                  <td>{book.author}</td>
+                  <td>{book.isbn}</td>
+                  <td>{book.publishedDate}</td>
+                  <td className="action">
+                    <button onClick={() => handleDelete(book.id)} className="delete">
                       Delete
                     </button>
-                    <button onClick={() => handleUpdate(book.id)}>Edit</button>
-                  </Table.Cell>
-                </Table.Row>
+                    <button onClick={() => handleShow(book.id)} className="edit">Edit</button>
+                  </td>
+                </tr>
               ))
-            : `Current no book data is present!!!!!!!!!!!!!!!!!!!`}
-        </Table.Body>
-      </Table>
+            ) : (
+              <tr>
+                <td colSpan={5}>
+                  Current no book data is present!!!!!!!!!!!!!!!!!!!
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Model Popup for editing the particular book that is clicked */}
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Modify/Edit Book</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <input
-            type="text"
-            placeholder="edit title"
-            value={editTitle}
-            onChange={(e) => setEditTitle(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="edit author"
-            value={editAuthor}
-            onChange={(e) => setEditAuthor(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="edit isbn"
-            value={editIsbn}
-            onChange={(e) => setEditIsbn(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="edit published date"
-            value={editPublishedDate}
-            onChange={(e) => setEditPublishedDate(e.target.value)}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleEdit}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
+      {/* Popup for editing the particular book that is clicked */}
+      <Modal show={show} onHide={handleClose} className="modal">
+        <input
+          type="text"
+          placeholder="edit title"
+          value={editTitle}
+          onChange={(e) => setEditTitle(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="edit author"
+          value={editAuthor}
+          onChange={(e) => setEditAuthor(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="edit isbn"
+          value={editIsbn}
+          onChange={(e) => setEditIsbn(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="edit published date"
+          value={editPublishedDate}
+          onChange={(e) => setEditPublishedDate(e.target.value)}
+        />
       </Modal>
-
-      {/* Footer of Book Management Application */}
     </div>
   );
 }
