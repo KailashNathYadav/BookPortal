@@ -25,10 +25,25 @@
   background-color: magenta;
 }
 
-button.edit{
-  background-color: skyblue;
+button.add,button.edit{
+  background-color: blue;
 }
+
 
 button.delete{
   background-color: rgb(172, 80, 80);
+}
+
+.add,.edit,.delete{
+  border-radius: 5px;
+  margin: 2px;
+  color: white;
+}
+
+.edited{
+  transform: scale(1.2);
+}
+
+button.edit:hover,button.delete:hover,button.add:hover{
+  transform: scale(1.1);
 }

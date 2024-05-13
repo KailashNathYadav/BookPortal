@@ -21,6 +21,8 @@ function App() {
   const [editIsbn, setEditIsbn] = useState("");
   const [editPublishedDate, setEditPublishedDate] = useState("");
 
+  let elementEdited;
+
   useEffect(() => {
     getData();
   }, []);
@@ -28,9 +30,15 @@ function App() {
   const handleShow = (id) => {
     setShow(true);
     handleEdit(id);
+    
+    elementEdited = document.getElementsByClassName(id);
+    elementEdited[0].classList.add('edited');
   };
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    setShow(false);
+    elementEdited[0].classList.remove('edited');
+  }
 
   const getData = () => {
     axios
@@ -110,14 +118,13 @@ function App() {
       });
   };
 
-  const getDataByTitleOrAuthor = (search) => {
-    // handle second time search
-    setBooks(
-      books.filter(
-        (book) => book.title.includes(search) || book.author.includes(search)
-      )
-    );
-    setSearch("");
+  const getDataByTitleOrAuthor = (searchInput) => {
+    axios.get(`${baseURL}/search?searchInput=${searchInput}`)
+         .then((result)=>{
+          setBooks(result.data);
+         }).catch((error)=>{
+          <h1>Currently no book available with this criteria !!!!!!!!!!!</h1>
+         })
   };
 
   return (
@@ -184,7 +191,7 @@ function App() {
                 />
               </td>
               <td>
-                <button onClick={handleCreate}>Add new book</button>
+                <button onClick={handleCreate} className='add'>Add new book</button>
               </td>
             </tr>
             {books && books.length > 0 ? (
@@ -198,14 +205,14 @@ function App() {
                     <button onClick={() => handleDelete(book.id)} className="delete">
                       Delete
                     </button>
-                    <button onClick={() => handleShow(book.id)} className="edit">Edit</button>
+                    <button onClick={() => handleShow(book.id)} className={`edit ${book.id}`}>Edit</button>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td colSpan={5}>
-                  Current no book data is present!!!!!!!!!!!!!!!!!!!
+                  Currently no book data is present !!
                 </td>
               </tr>
             )}
