@@ -3,7 +3,7 @@ Develop a RESTful API using C# with ASP.NET Core that allows users to manage a c
 The API will provide capabilities to add, retrieve, update, and delete book entries.
 For Testing use: Postman
 
-CRUD operation:
+CRUDS(Create,Read,Update,Delete,Search) operation:
 
 Create:
 Method: Post
@@ -68,3 +68,9 @@ Delete:
 Method: Delete
 URI: https://localhost:7070/api/books/{id}
 Output: 200 Ok if found else 404 NotFound
+
+Search:
+Method: Get
+URI: http://localhost:5000/api/books/search?searchInput=Jane Austen
+Output: List of book if found else show there is no book with this author or title
+
