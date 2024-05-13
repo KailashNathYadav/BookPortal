@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BookPortal.Controllers
@@ -15,6 +16,7 @@ namespace BookPortal.Controllers
 	public class BooksController : ControllerBase
 	{
 		private readonly ApplicationDbContext dbContext;
+
 		public BooksController(ApplicationDbContext dbContext)
 		{
 			this.dbContext = dbContext;
@@ -27,8 +29,7 @@ namespace BookPortal.Controllers
 		}
 
 		[HttpPost]
-		[ActionName("AddBook")]
-		public IActionResult AddBook(AddBookDTO addBookDTO)
+		public async Task<ActionResult<Book>> AddBook(AddBookDTO addBookDTO)
 		{
 			var bookEntity = new Book()
 			{
@@ -39,12 +40,11 @@ namespace BookPortal.Controllers
 			};
 
 			dbContext.Books.Add(bookEntity);
-			dbContext.SaveChanges();
-			return Ok(bookEntity);
+			await dbContext.SaveChangesAsync();
+			return CreatedAtAction(nameof(GetBookById), new { id = bookEntity.Id }, bookEntity);
 		}
 
-		[HttpGet]
-		[Route("{id:guid}")]
+		[HttpGet("{id:guid}")]
 		public async Task<ActionResult<Book>> GetBookById(Guid id)
 		{
 			var book = await dbContext.Books.FindAsync(id);
@@ -55,12 +55,11 @@ namespace BookPortal.Controllers
 			return Ok(book);
 		}
 
-		[HttpPut]
-		[Route("{id:guid}")]
+		[HttpPut("{id:guid}")]
 		public async Task<IActionResult> UpdateBookById(Guid id, UpdateBookDTO updateBookDTO)
 		{
 			var book = await dbContext.Books.FindAsync(id);
-			if (book is null)
+			if (book == null)
 			{
 				return NotFound();
 			}
@@ -69,21 +68,29 @@ namespace BookPortal.Controllers
 			book.ISBN = updateBookDTO.ISBN;
 			book.PublishedDate = updateBookDTO.PublishedDate;
 			await dbContext.SaveChangesAsync();
-			return Ok(book);
+			return NoContent();
 		}
 
-		[HttpDelete]
-		[Route("{id:guid}")]
+		[HttpDelete("{id:guid}")]
 		public async Task<IActionResult> DeleteBookById(Guid id)
 		{
 			var book = await dbContext.Books.FindAsync(id);
-			if (book is null)
+			if (book == null)
 			{
 				return NotFound();
 			}
 			dbContext.Books.Remove(book);
 			await dbContext.SaveChangesAsync();
-			return Ok();
+			return NoContent();
+		}
+
+		[HttpGet("search")]
+		public async Task<ActionResult<IEnumerable<Book>>> SearchBooks([FromQuery] string searchInput)
+		{
+			var books = dbContext.Books.AsQueryable();
+			if (!String.IsNullOrEmpty(searchInput))
+				books = books.Where(input => input.Title.Contains(searchInput) || input.Author.Contains(searchInput));
+			return await books.ToListAsync();
 		}
 	}
 }
