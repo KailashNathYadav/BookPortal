@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
-import Table from "react-bootstrap/Table";
 import axios from "axios";
 import "./App.css";
 
@@ -9,6 +8,8 @@ const baseURL = `http://localhost:5000/api/books`;
 function App() {
   // state for all books
   const [books, setBooks] = useState([]);
+  // state for managing the page number
+  const [pageNumber, setPageNumber] = useState(1);
   // state for search input
   const [search, setSearch] = useState([]);
   // state for creating new book
@@ -25,8 +26,9 @@ function App() {
   const [editPublishedDate, setEditPublishedDate] = useState("");
 
   useEffect(() => {
-    getData();
-  }, []);
+    if (search.length > 0) getDataByTitleOrAuthor(search);
+    else getData(pageNumber);
+  }, [pageNumber]);
 
   const handleShow = (id) => {
     setShow(true);
@@ -39,7 +41,7 @@ function App() {
 
   const getData = () => {
     axios
-      .get(baseURL)
+      .get(`${baseURL}?pageNumber=${pageNumber}`)
       .then((response) => {
         setBooks(response.data);
       })
@@ -58,7 +60,7 @@ function App() {
     axios
       .post(baseURL, data)
       .then((result) => {
-        getData();
+        getData(pageNumber);
         clearCreate();
       })
       .catch((error) => {
@@ -67,7 +69,6 @@ function App() {
   };
 
   const clearCreate = () => {
-    console.log("reset all the create field");
     setTitle("");
     setAuthor("");
     setIsbn("");
@@ -75,7 +76,6 @@ function App() {
   };
 
   const clearEdit = () => {
-    console.log("reset all edit field");
     setEditId("");
     setEditTitle("");
     setEditAuthor("");
@@ -87,7 +87,7 @@ function App() {
     axios
       .delete(`${baseURL}/${id}`)
       .then((result) => {
-        getData();
+        getData(pageNumber);
       })
       .catch((error) => {
         alert(error);
@@ -96,7 +96,7 @@ function App() {
 
   const handleEdit = () => {
     const data = {
-      id:editId,
+      id: editId,
       title: editTitle,
       author: editAuthor,
       isbn: editIsbn,
@@ -106,7 +106,7 @@ function App() {
     axios
       .put(`${baseURL}/${editId}`, data)
       .then((result) => {
-        getData();
+        getData(pageNumber);
         clearEdit();
         handleClose();
       })
@@ -117,19 +117,21 @@ function App() {
 
   const getDataByTitleOrAuthor = (searchInput) => {
     axios
-      .get(`${baseURL}/search?searchInput=${searchInput}`)
+      .get(
+        `${baseURL}/search?searchInput=${searchInput}&pageNumber=${pageNumber}`
+      )
       .then((result) => {
         setBooks(result.data);
       })
       .catch((error) => {
-        <h1>Currently no book available with this criteria !!!!!!!!!!!</h1>;
+        console.log(error);
       });
   };
 
   return (
     <div className="container-fluid">
       {/* Header of the Book Management Application */}
-      <div className="container-fluid navbar navbar-expand-lg bg-primary mb-5">
+      <div className="container-fluid navbar navbar-expand-lg bg-primary mb-3">
         <button onClick={() => getData()} className="mx-2">
           <i className="fa-solid fa-book"></i>
         </button>
@@ -147,96 +149,91 @@ function App() {
 
       {/* List of Available details of book in database */}
       <div className="container">
-        <Table striped bordered hover className="table table-hover">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Book Title</th>
-              <th>Book Author</th>
-              <th>Book ISBN</th>
-              <th>Book Published Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>0</td>
-              <td>
-                <input
-                  type="text"
-                  placeholder="Enter Title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-100"
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  placeholder="Enter Author"
-                  value={author}
-                  onChange={(e) => setAuthor(e.target.value)}
-                  className="w-100"
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  placeholder="Enter ISBN"
-                  value={isbn}
-                  onChange={(e) => setIsbn(e.target.value)}
-                  className="w-100"
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  placeholder="Enter Published Date"
-                  value={publishedDate}
-                  onChange={(e) => setPublishedDate(e.target.value)}
-                  className="w-100"
-                />
-              </td>
-              <td>
+        <div className="row font-weight-bold mb-2">
+          <div className="col-3">Book Title</div>
+          <div className="col-2">Book Author</div>
+          <div className="col-2">Book ISBN</div>
+          <div className="col-2">Book Published Date</div>
+          <div className="col-2">Actions</div>
+        </div>
+
+        <div className="row mb-2">
+          <div className="col-3">
+            <input
+              type="text"
+              placeholder="Enter Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="form-control"
+            />
+          </div>
+          <div className="col-2">
+            <input
+              type="text"
+              placeholder="Enter Author"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              className="form-control"
+            />
+          </div>
+          <div className="col-2">
+            <input
+              type="text"
+              placeholder="Enter ISBN"
+              value={isbn}
+              onChange={(e) => setIsbn(e.target.value)}
+              className="form-control"
+            />
+          </div>
+          <div className="col-2">
+            <input
+              type="text"
+              placeholder="Enter Publish Date"
+              value={publishedDate}
+              onChange={(e) => setPublishedDate(e.target.value)}
+              className="form-control"
+            />
+          </div>
+          <div className="col-2">
+            <button
+              onClick={handleCreate}
+              className="add btn btn-primary w-100"
+            >
+              Add new book
+            </button>
+          </div>
+        </div>
+
+        {books && books.length > 0 ? (
+          books.map((book) => (
+            <div className="row mb-2" key={book.id}>
+              <div className="col-3">{book.title}</div>
+              <div className="col-2">{book.author}</div>
+              <div className="col-2">{book.isbn}</div>
+              <div className="col-2">{book.publishedDate}</div>
+              <div className="col-2 d-flex justify-content-between">
                 <button
-                  onClick={handleCreate}
-                  className="w-100 btn btn-primary"
+                  onClick={() => handleDelete(book.id)}
+                  className="delete btn btn-danger w-50 mx-1"
                 >
-                  Add new book
+                  Delete
                 </button>
-              </td>
-            </tr>
-            {books && books.length > 0 ? (
-              books.map((book,index) => (
-                <tr key={book.id}>
-                  <td>{index + 1}</td>
-                  <td>{book.title}</td>
-                  <td>{book.author}</td>
-                  <td>{book.isbn}</td>
-                  <td>{book.publishedDate}</td>
-                  <td className="action">
-                    <button
-                      onClick={() => handleDelete(book.id)}
-                      className="delete w-50 mx-2 btn btn-danger"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => handleShow(book.id)}
-                      className="edit w-40 mx-1 btn btn-primary"
-                    >
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5}>Currently no book data is present !!</td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
+                <button
+                  onClick={() => handleShow(book.id)}
+                  className="edit btn btn-primary w-50 mx-1"
+                >
+                  Edit
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="row">
+            <div className="col-12 text-center">
+              Currently no book data is present at this page please check previous pages!!
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Popup for editing the particular book that is clicked */}
@@ -245,7 +242,8 @@ function App() {
         show={show}
         onHide={handleClose}
         className="modal container-fluid"
-        tabIndex="-1">
+        tabIndex="-1"
+      >
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
@@ -255,7 +253,7 @@ function App() {
                 class="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
-                onClick={()=>handleClose()}
+                onClick={() => handleClose()}
               ></button>
             </div>
             <div class="modal-body">
@@ -309,17 +307,71 @@ function App() {
                 type="button"
                 className="btn btn-secondary mx-4"
                 data-bs-dismiss="modal"
-                onClick={()=>handleClose()}
+                onClick={() => handleClose()}
               >
                 Close
               </button>
-              <button type="button" className="btn btn-primary" onClick={()=>handleEdit()}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => handleEdit()}
+              >
                 Save changes
               </button>
             </div>
           </div>
         </div>
       </Modal>
+
+      {/* Pagination to indicate a series of related content exists across multiple pages */}
+      <div className="pagination justify-content-center">
+        <div className="page-item">
+          <div
+            className="page-link"
+            aria-label="Previous"
+            onClick={() => setPageNumber(Math.max(1, pageNumber - 1))}
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </div>
+        </div>
+        {/* make page according to the total record */}
+        
+        <div className="page-item">
+          <div className="page-link" onClick={() => setPageNumber(1)}>
+            1
+          </div>
+        </div>
+        <div className="page-item">
+          <div className="page-link" onClick={() => setPageNumber(2)}>
+            2
+          </div>
+        </div>
+        <div className="page-item">
+          <div className="page-link" onClick={() => setPageNumber(3)}>
+            3
+          </div>
+        </div>
+        <div className="page-item">
+          <div className="page-link" onClick={() => setPageNumber(4)}>
+            4
+          </div>
+        </div>
+        <div className="page-item">
+          <div className="page-link" onClick={() => setPageNumber(5)}>
+            5
+          </div>
+        </div>
+
+        <div className="page-item">
+          <div
+            className="page-link"
+            aria-label="Next"
+            onClick={() => setPageNumber(Math.min(5, pageNumber + 1))}
+          >
+            <span aria-hidden="true">&raquo;</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
