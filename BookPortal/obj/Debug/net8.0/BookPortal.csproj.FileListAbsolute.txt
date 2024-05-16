@@ -408,3 +408,5 @@ C:\Users\Dell\OneDrive\Documents\REPOS\BookPortalBackEnd\BookPortal\obj\Debug\ne
 C:\Users\Dell\OneDrive\Documents\REPOS\BookPortalBackEnd\BookPortal\obj\Debug\net8.0\BookPortal.pdb
 C:\Users\Dell\OneDrive\Documents\REPOS\BookPortalBackEnd\BookPortal\obj\Debug\net8.0\BookPortal.genruntimeconfig.cache
 C:\Users\Dell\OneDrive\Documents\REPOS\BookPortalBackEnd\BookPortal\obj\Debug\net8.0\ref\BookPortal.dll
+C:\Users\Dell\OneDrive\Documents\REPOS\BookPortalBackEnd\BookPortal\bin\Debug\net8.0\BookPortal.xml
+C:\Users\Dell\OneDrive\Documents\REPOS\BookPortalBackEnd\BookPortal\obj\Debug\net8.0\BookPortal.xml

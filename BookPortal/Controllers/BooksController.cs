@@ -16,6 +16,7 @@ namespace BookPortal.Controllers
 	public class BooksController : ControllerBase
 	{
 		private readonly ApplicationDbContext dbContext;
+		private const int DefaultPageSize = 10;
 
 		public BooksController(ApplicationDbContext dbContext)
 		{
@@ -23,9 +24,12 @@ namespace BookPortal.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Book>>> GetAllBooks()
+		public async Task<ActionResult<IEnumerable<Book>>> GetAllBooks([FromQuery] int pageNumber)
 		{
-			return await dbContext.Books.ToListAsync();
+			return await dbContext.Books.
+						Skip((pageNumber - 1)*DefaultPageSize).
+						Take(DefaultPageSize).
+						ToListAsync();
 		}
 
 		[HttpPost]
@@ -85,12 +89,15 @@ namespace BookPortal.Controllers
 		}
 
 		[HttpGet("search")]
-		public async Task<ActionResult<IEnumerable<Book>>> SearchBooks([FromQuery] string searchInput)
+		public async Task<ActionResult<IEnumerable<Book>>> SearchBooks([FromQuery] string searchInput, [FromQuery] int pageNumber)
 		{
 			var books = dbContext.Books.AsQueryable();
 			if (!String.IsNullOrEmpty(searchInput))
 				books = books.Where(input => input.Title.Contains(searchInput) || input.Author.Contains(searchInput));
-			return await books.ToListAsync();
+			return await books.
+				Skip((pageNumber - 1)*DefaultPageSize).
+				Take(DefaultPageSize).
+				ToListAsync();
 		}
 	}
 }
