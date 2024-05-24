@@ -1,0 +1,145 @@
+<!-- Header -->
+<header>
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+      <div class="navbar-brand">Book Portal</div>
+
+      <ul class="navbar-nav">
+          <li><a routerLink="" class="nav-link">Books</a></li>
+          <li><a routerLink="/add" class="nav-link" (click)="switchShowCreate()">Add Book</a></li>
+      </ul>
+
+      <ul class="navbar-nav navbar-collapse justify-content">
+          <input
+              type="text"
+              placeholder="Search Books via Title or Author"
+              class="mx-1 w-25"
+              [(ngModel)]="searchInput"
+          />
+          <button type="submit" (click)="getBooksViaTitleOrAuthor(searchInput)">🔍</button>
+      </ul>
+  </nav>
+</header>
+
+<!-- list of books of not editing / creating -->
+<div *ngIf="show_create">
+  <div class="container mt-5 w-50">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="mb-0">Create/Add Book</h2>
+        </div>
+        <div class="card-body">
+            <form (ngSubmit)="handleSubmit()" class="needs-validation" novalidate>
+                <div class="form-group">
+                    <label for="title">Title:</label>
+                    <input type="text" class="form-control" id="title" name="title" [(ngModel)]="book.title" required>
+                    <div class="invalid-feedback">Please enter the title.</div>
+                </div>
+                <div class="form-group">
+                    <label for="author">Author:</label>
+                    <input type="text" class="form-control" id="author" name="author" [(ngModel)]="book.author" required>
+                    <div class="invalid-feedback">Please enter the author.</div>
+                </div>
+                <div class="form-group">
+                    <label for="isbn">ISBN:</label>
+                    <input type="text" class="form-control" id="isbn" name="isbn" [(ngModel)]="book.isbn" required>
+                    <div class="invalid-feedback">Please enter the ISBN.</div>
+                </div>
+                <div class="form-group">
+                    <label for="publishedDate">Published Date:</label>
+                    <input type="date" class="form-control" id="publishedDate" name="publishedDate" [(ngModel)]="book.publishedDate" required>
+                    <div class="invalid-feedback">Please enter the published date.</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<div *ngIf="show_edit">
+  <div class="container mt-5 w-50">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="mb-0">Update/Edit Book</h2>
+        </div>
+        <div class="card-body">
+            <form (ngSubmit)="switchShowEdit()" class="needs-validation" novalidate>
+                <div class="form-group">
+                    <label for="title">Title:</label>
+                    <input type="text" class="form-control" id="title" name="title" [(ngModel)]="edit_book.title" required>
+                    <div class="invalid-feedback">Please enter the title.</div>
+                </div>
+                <div class="form-group">
+                    <label for="author">Author:</label>
+                    <input type="text" class="form-control" id="author" name="author" [(ngModel)]="edit_book.author" required>
+                    <div class="invalid-feedback">Please enter the author.</div>
+                </div>
+                <div class="form-group">
+                    <label for="isbn">ISBN:</label>
+                    <input type="text" class="form-control" id="isbn" name="isbn" [(ngModel)]="edit_book.isbn" required>
+                    <div class="invalid-feedback">Please enter the ISBN.</div>
+                </div>
+                <div class="form-group">
+                    <label for="publishedDate">Published Date:</label>
+                    <input type="date" class="form-control" id="publishedDate" name="publishedDate" [(ngModel)]="edit_book.publishedDate" required>
+                    <div class="invalid-feedback">Please enter the published date.</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="container" *ngIf="!show_create && !show_edit">
+  <div class="row font-weight-bold mb-2">
+    <div class="col-3">Book Title</div>
+    <div class="col-3">Book Author</div>
+    <div class="col-2">Book ISBN</div>
+    <div class="col-2">Published Date</div>
+    <div class="col-2">Actions on Book</div>
+  </div>
+  <hr />
+  <div *ngFor="let book of books" class="row mb-2">
+    <div class="col-3">{{ book.title }}</div>
+    <div class="col-3">{{ book.author }}</div>
+    <div class="col-2">{{ book.isbn }}</div>
+    <div class="col-2">{{ book.publishedDate | date : "yyyy-mm-dd" }}</div>
+    <div class="col-2 d-flex justify-content-between">
+      <button
+        (click)="deleteBook(book.id)"
+        class="delete btn btn-danger w-50 mx-1"
+      >
+        Delete
+      </button>
+      <button
+        (click)="handleUpdate(book.id)"
+        class="edit btn btn-primary w-50 mx-1"
+      >
+        Edit
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- paging  -->
+<div class="pagination justify-content-center">
+  <div class="page-item">
+    <div class="page-link" aria-label="Previous">
+      <span aria-hidden="true" (click)="prevPage()">&laquo;</span>
+    </div>
+  </div>
+
+  <!-- Pagination Buttons -->
+  <div class="page-item" *ngFor="let page of pages">
+    <div class="page-link" (click)="setPage(page)">
+      {{ page }}
+    </div>
+  </div>
+
+  <div class="page-item">
+    <div class="page-link" aria-label="Next">
+      <span aria-hidden="true" (click)="nextPage()">&raquo;</span>
+    </div>
+  </div>
+</div>
